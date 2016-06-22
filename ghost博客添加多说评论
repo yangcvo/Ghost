@@ -1,0 +1,45 @@
+ghost博客添加多说评论
+
+Ghost作为一个极简的Blog系统，并没有文章评论系统。要实现评论系统，就需要借助第三方评论系统。
+第三方系统比内置实现主要方便在无需维护用户系统，且大部分第三方系统都有较好的垃圾评论过滤机制，方便省心。 这里以多说为例，多说支持大多数现有blog系统，不过它的官网上没有ghost的选项，可能是ghost现在使用人数较少的原因吧。 首先我们需要注册一个多说的账号，点首页上的我要安装按钮，填写相关资料后即跳转到评论组件相关的代码。 初始如下：
+
+
+<!-- 多说评论框 start --> 
+    <div class="ds-thread" data-thread-key="请将此处替换成文章在你的站点中的ID" data-title="请替换成文章的标题" data-url="请替换成文章的网址"></div>
+<!-- 多说评论框 end --> 
+<!-- 多说公共JS代码 start (一个网页只需插入一次) --> 
+<script type="text/javascript"> 
+var duoshuoQuery = {short_name:"xxxxxxxxxx"}; 
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+        || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+    </script>
+<!-- 多说公共JS代码 end -->
+
+
+
+
+
+
+
+将这段代码嵌入ghost当前主题的post.hbs内部 查阅core/client/models/post.js可查看post对象拥有的属性，使用slug作为文章的id，title作为文章的标题 所以在{{/post}}这行之前 插入如下html代码
+
+
+<section class="post-comments"> 
+        <div class="ds-thread" data-thread-key="{{slug}}" data-title="{{{title}}}" data-url="{{url absolute="true"}}"></div>
+</section>
+
+
+
+
+
+
+
+并将剩余的js代码插入到文件最后位置
+
+最后得到的结果就是本文最底部这样子的东西。

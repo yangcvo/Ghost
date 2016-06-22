@@ -1,0 +1,610 @@
+Ghost博客安装、使用、更新一条龙教程-中文版
+
+
+
+Ghost作为一款博客新秀，采用Node.js语言编写，前后台简洁，占用资源少，支持Markdown，作为个人建站博客程序具有天然优势。但是，至今还没有1.0以上版本，安装、升级还需要执行代码，本文用简洁语言告诉大家如何安装升级，并就安装过程中可能出现的问题，进行了提示。如有问题，也可以在文末留言，夕夕多为大家及时解决。
+
+写在前面
+
+强烈建议大家下载并使用 Ghost 中文版完整集成包，以免 npm install --production 安装依赖包时被墙！ 如果你喜欢用英文原版？可以下载 中文集成包 和 英文原版安装包，首先解压 中文版集成包，然后再解压 英文版安装包 覆盖 中文版 即可，两个版本完全兼容，任意切换，同时还能免去安装依赖包时被墙的麻烦。
+
+安装
+
+安装环境
+
+ubuntu14.04 64位 阿里云主机
+
+工具
+
+xShell ,xFtp
+
+安装Node.js
+
+执行下下列命令安装Node.js，执行
+
+
+  sudo add-apt-repository ppa:chris-lea/node.js 时，询问是否确定要添加上面的 PPA：直接按回车键就 OK！
+
+
+apt-get update
+apt-get install -y python-software-properties python g++ make
+apt-get install software-properties-common
+add-apt-repository ppa:chris-lea/node.js
+apt-get update
+apt-get install nodejs
+
+
+
+检查是否安装成功
+
+
+node -v
+npm -v
+
+
+输出相应版本号则安装成功。 如果没有相应版本号，再执行一次上述5条命令。
+
+配置Nginx
+
+1.执行以下命令安装Nginx
+
+
+sudo apt-get install nginx
+
+
+
+2.重启Nginx
+
+
+service nginx restart
+
+
+
+浏览器进入服务器IP,如果提示
+
+Welcome to Nginx 则安装成功。
+3.利用Nginx作为Ghost的前段代理
+
+
+cd /etc/nginx/sites-available/
+sudo touch ghost.conf
+sudo vi ghost.conf
+
+
+
+
+
+
+
+4.在ghost.conf文件中编辑如下内容
+
+
+server { listen 80; server_name abc.com; //替换为你自己的域名！
+          location / { proxy_set_header X-Real-IP ;
+        proxy_set_header Host ;
+        proxy_pass http://127.0.0.1:2368; }
+
+
+
+
+
+
+
+} 为 ghost.conf 文件做一个软链接到 /etc/nginx/sites-enabled/ 目录下：
+
+
+sudo ln -s /etc/nginx/sites-available/ghost.conf /etc/nginx/sites-enabled/ghost.conf
+
+
+
+
+
+
+
+安装Forever
+
+
+sudo npm install forever -g
+
+
+
+
+
+
+
+安装过程中出现Warrn提示不用理会，出现erros提示后，表示没有安装成功，执行npm cache clean 后重新执行按照命令，直到成功，安装不成功的原因是网络问题造成的。 安装成功后，显示为树状列表形式。
+
+关于数据库，
+
+有些教程建议大家使用MySQL，这里还是使用官方默认的 Sqlite3 数据库，所有，不用单独安装数据库。
+
+安装配置ghost 程序。
+
+1.安装压缩软件
+sudo apt-get install unzip 2.将ghost下载到srv目录
+cd /srv/ wget https://ghost.org/zip/ghost-0.6.3.zip 如果提示read error at byte 表示没有下载成功，删除后重新下载。 执行 ls查看下载文件名 执行 rm 文件名 删除下载安装包后 再重新下载。
+
+
+rm ghost-0.6.3.zip
+
+
+
+
+
+
+
+3.将其解压到ghost 文件夹
+
+
+unzip ghost-0.6.3.zip -d ghost
+
+
+
+
+
+
+
+4.配置ghost
+
+
+cd /srv/ghost/
+sudo cp config.example.js config.js
+sudo vi config.js
+
+
+
+只需修改production 一节的配置信息 将域名替换为自己的域名即可
+
+
+// ### Production
+// When running Ghost in the wild, use the production environment
+// Configure your URL and mail settings here
+production: {
+          url: ‘http://ghostchina.com’, //替换为你自己的域名。 “`
+
+
+
+
+保存退出。 5.在ghost目录安装ghost依赖的库
+
+
+cd /srv/ghost/
+sudo npm install –production
+
+
+
+
+
+
+
+提示
+
+
+sqlite3@3.0.6 node_modules/sqlite3
+└── nan@1.8.4
+
+
+
+表示安装成功。 安装成功后，ghost 文件夹下会多出一个nodemodules 提示error 表示没有安装成功，删除nodemodules
+
+
+rm -rf node_modules
+
+
+并清理缓存
+
+
+npm cache clean
+
+
+
+
+
+
+
+再重新运行
+
+
+npm install –production
+
+
+
+
+
+
+
+如果出现 “node-pre-gyp install –fallback-to-build “错误提示， 可以先执行
+
+
+  npm install sqlite3 –build-from-source
+
+
+
+
+
+
+
+再执行
+
+
+npm install -production
+
+
+
+
+
+
+
+如果还不能成功，换成国内镜像。 镜像使用方法（三种办法任意一种都能解决问题，建议使用第三种，将配置写死，下次用的时候配置还在）: 1.通过config命令
+
+
+npm config set registry https://registry.npm.taobao.org
+npm info underscore （如果上面配置正确这个命令会有字符串response）
+
+
+
+
+
+
+
+2.命令行指定
+
+
+npm –registry https://registry.npm.taobao.org info underscore
+
+
+
+
+
+
+
+3.编辑 ~/.npmrc 加入下面内容
+
+
+registry = https://registry.npm.taobao.org
+
+
+
+
+
+
+
+
+搜索镜像: https://npm.taobao.org 建立或使用镜像,参考:https://github.com/cnpm/cnpmjs.org
+
+启动ghost
+
+
+sudo service nginx restart
+cd /srv/ghost
+sudo NODE_ENV=production forever start index.js
+
+
+
+
+
+
+
+查看进程
+
+
+forever list
+
+
+
+
+
+
+
+停止进程
+
+
+sudo NODE_ENV=production forever stop index.js
+
+
+
+
+
+
+
+最后配置
+
+浏览器输入绑定的域名，查看是否能够访问。 设置 博客名，登陆名等，因为没有设置字符集，所有作者名称只能用英文，否则会登陆不上去。
+
+升级
+
+下载最新版到临时文件夹
+
+
+cd /srv/
+wget https://ghost.org/zip/ghost-0.7.4.zip
+
+
+
+
+
+
+
+
+解压到新文件夹
+
+
+unzip ghost-0.7.4.zip -d ghost-0.7.4
+
+
+
+
+
+
+
+重新回到老文件夹
+
+
+  cd /srv/ghost
+
+
+
+
+
+
+
+删除老版本的的core文件夹
+
+
+rm -rf core
+
+
+
+
+
+
+
+重新回到最新版本文件夹
+
+
+cd /srv/ghost-0.7.4
+
+
+
+
+
+
+
+复制新的core文件到原安装目录
+
+cp -R core /srv/ghost
+
+复制其他关键文件到原安装目录
+
+
+cp index.js *.json /srv/ghost
+
+
+
+
+
+
+
+复制最新Casper主题到原主题文件
+
+
+  cp -R content/themes/casper /srv/ghost/content/themes
+
+
+
+
+
+
+
+回到原博客安装目录
+
+
+cd /srv/ghost/
+
+
+
+
+
+
+
+升级用户权限
+
+
+chown -R root:ghost *
+
+
+
+
+
+
+
+升级依赖库
+
+
+cd /srv/ghost
+npm install –production
+
+
+
+
+
+
+
+ps.如果有任何errors则表示升级失败，需要删除node_modules
+
+
+rm -rf node_modules
+
+
+
+
+
+
+
+，并清理缓存
+
+
+npm cache clean
+
+
+
+
+
+
+
+后，再重新运行
+
+
+npm install –production
+
+
+
+
+
+
+
+重启ghost
+
+
+sudo NODE_ENV=production forever start index.js
+
+
+
+
+
+
+
+或者先运行
+
+
+  sudo NODE_ENV=production forever stop index.js
+
+
+
+
+
+
+
+再重启
+
+
+  sudo NODE_ENV=production forever start index.js
+
+
+
+
+
+
+
+设置SMTP
+
+设置SMTP只需要编辑进入ghost目录
+
+
+cd /srv/ghost
+
+
+
+
+
+
+
+编辑
+
+
+vim config.js
+
+
+
+
+
+
+
+在production下的Mail中加入SMTP信息即可。 以亚马逊SES为例
+
+
+  mail: {
+  transport: ‘SMTP’,
+  host: ‘YOU-SES-SERVER-NAME’,
+    options: {
+        port: 465,
+        service: ‘SES’,
+        auth: {
+            user: ‘YOUR-SES-ACCESS-KEY-ID’,
+            pass: ‘YOUR-SES-SECRET-ACCESS-KEY’
+        }
+    }
+}
+
+
+
+
+
+
+
+添加百度统计代码
+
+默认 主题casper 为例。 进入你的 Ghost 安装目录，用任何编辑器打开 content/themes/casper/default.hbs 文件：
+
+
+cd /srv/ghost/content/themes/casper/
+vi default.hbs
+
+
+
+
+
+
+
+把统计代码放在body标签之前，保存退出即可。
+
+添加畅言评论系统
+
+畅言评论系统要安装在文章评论页面 post.hbs
+
+
+cd srv/ghost/content/themes/casper/
+vim post.hbs
+
+
+
+
+
+
+
+在 footer之前插入畅言评论框代码。
+
+
+                <span class=”hidden”>Google+</span>
+            </a>
+        </section>
+    </footer>
+
+
+
+
+
+
+
+添加百度分享
+
+将share 部分替换为如下内容。如需自行定义，请前往百度分享修改。
+
+
+<section class=”share”>
+<h4>分享此博文</h4>
+{{! 以下代码使用的是百度分享(http://share.baidu.com/)，如需自定义，请自行到百度分享上定制并将代码粘贴到这里。}}
+<div class=”bdsharebuttonbox”><a href=”#” class=”bds_more” data-cmd=”more”></a><a href=”#” class=”bds_tsina” data-cmd=”tsina” title=”分享到新浪微博”></a><a href=”#” class=”bds_weixin” data-cmd=”weixin” title=”分享到微信”></a><a href=”#” class=”bds_douban” data-cmd=”douban” title=”分享到豆瓣网”></a><a href=”#” class=”bds_renren” data-cmd=”renren” title=”分享到人人网”></a></div>
+<script>window._bd_share_config={“common”:{“bdSnsKey”:        {},”bdText”:””,”bdMini”:”2″,”bdMiniList”:false,”bdPic”:””,”bdStyle”:”1″,”bdSize”:”24″},”share”:{}};with(document)0[(getElementsByTagName(‘head’)[0]||body).appendChild(createElement(‘script’)).src=’http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=’+~(-new Date()/36e5)];</script>
+  {{! 百度分享代码结束}}
+  </section>
+
+
+
+
+
+
+
+添加百度推荐
+
+同畅言代码雷同， 在“footer“之前插入百度推荐代码。

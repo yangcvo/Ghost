@@ -1,0 +1,21 @@
+Ghost 修改端口
+
+说下我这是bitnami 一键安装的，因为之前安装的6.0 版本升级用bitnami 一键安装了。
+
+这里需要修改的端口 就必须这几个地方：
+
+需要修改端口80-8088：
+/opt/ghost-0.7.5-0/apache2/conf/httpd.conf
+/opt/ghost-0.7.5-0/apache2/conf/bitnami/bitnami.conf
+/opt/ghost-0.7.5-0/apps/ghost/htdocs/config.js 
+
+
+这三处修改端口，然后80端口我又做了个主页，然后转接到8088端口上面文章。
+
+
+然后重启：
+
+root@sysopen ~]# /opt/ghost-0.7.5-0/ctlscript.sh restart
+Syntax OK
+
+启动script

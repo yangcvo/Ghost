@@ -1,0 +1,64 @@
+Ghost服务启动不起来
+
+这个问题我一直折腾了我好几天，因为我是用bitnami 安装的，所以不知道他们启动脚本放到哪
+
+启动规则是什么？网上说了很多种方法都去试过了没有用。
+
+后来 在这个网站看到这个功能启动方法，可是还是没有用，希望对其他朋友有帮助。
+
+https://community.bitnami.com/t/ghost-could-not-be-started/36908
+
+我帮网页翻译过来了。。
+
+这里我也是这么重启了 出现了一个问题 就是还是有 ghost  no runing .
+
+我是在这个目录下面
+
+启动失败，脚本执行失败
+
+/opt/ghost-0.7.5-0/apps/ghost/scripts/ctl.sh : Ghost not running
+warn: --minUptime not set. Defaulting to: 1000ms
+warn: --spinSleepTime not set. Your script will exit if it does not stay up for at least 1000msinfo: Forever processing file: index.js/opt/ghost-0.7.5-0/apps/ghost/scripts/ctl.sh : Ghost could not be started
+
+也启动失败
+
+我的是这个原因
+
+安装的forever 执行出现错误 没有这个文件夹 然后我从新安装了forever 然后做了个软连接过去
+
+[root@sysopen ghost-0.7.5-0]# find / -name forever
+/usr/lib/node_modules/forever
+/usr/lib/node_modules/forever/lib/forever
+/usr/lib/node_modules/forever/bin/forever
+/usr/bin/forever
+/root/tmp/npm-21235-7UUZ2fTQ/1454365879251-0.308092876104638/package/lib/forever
+/root/tmp/npm-21235-7UUZ2fTQ/1454365879251-0.308092876104638/package/bin/forever
+/opt/ghost-0.7.5-0/nodejs/lib/node_modules/forever
+/opt/ghost-0.7.5-0/nodejs/lib/node_modules/forever/lib/forever
+/opt/ghost-0.7.5-0/nodejs/lib/node_modules/forever/bin/forever
+/opt/ghost-0.7.5-0/nodejs/bin/forever
+[root@sysopen ghost-0.7.5-0]# ln -s /opt/ghost-0.7.5-0/nodejs/lib/node_modules/forever/bin/forever^C
+[root@sysopen ghost-0.7.5-0]# cd //opt/ghost-0.7.5-0/nodejs/lib/node_modules/forever/bin/^C
+[root@sysopen ghost-0.7.5-0]# cd /opt/ghost-0.7.5-0/nodejs/lib/node_modules/forever/bin/
+[root@sysopen bin]# ls
+forever  monitor
+
+这里我直接把
+/usr/lib/node_modules/forever/bin/forever
+
+这个ln -s  /opt/ghost-0.7.5-0/nodejs/lib/node_modules/forever/bin/
+
+然后在执行这个脚本就已经启动成功了，之前一直在用/opt/ghost-0.7.5-0/nodejs/lib/node_modules/forever/bin/
+这下面的forever 去执行。
+
+所以一直出现报错。
+
+然后到这个目录下面
+[root@sysopen ghost-0.7.5-0]# ./ctlscript.sh restart ghost
+/opt/ghost-0.7.5-0/apps/ghost/scripts/ctl.sh : Ghost not running
+warn:    --minUptime not set. Defaulting to: 1000ms
+warn:    --spinSleepTime not set. Your script will exit if it does not stay up for at least 1000ms
+info:    Forever processing file: index.js
+/opt/ghost-0.7.5-0/apps/ghost/scripts/ctl.sh : Ghost started  这个就启动正常了。这个东西必须搞懂啊
+
+不然云机器还是恢复快照 多麻烦。
